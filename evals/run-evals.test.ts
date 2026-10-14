@@ -1,8 +1,9 @@
+import { HEADINGS } from "../src/helpers/note";
 import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
 import path from "node:path";
-import { HEADINGS, NOT_MENTIONED, checkLanguage, checkStructure, checkExpectations, parseSections, type Expected } from "./run-evals";
+import { NOT_MENTIONED, checkLanguage, checkStructure, checkExpectations, parseSections, type Expected } from "./run-evals";
 
 for (const language of ["en", "ka"] as const) {
   const note = HEADINGS[language].map((heading) => `${heading}\n${NOT_MENTIONED[language]}`).join("\n\n");

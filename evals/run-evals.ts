@@ -9,6 +9,7 @@
  *
  * Notes are saved to outputs/improved/<id>.txt or outputs/original/<id>.txt.
  */
+import { HEADINGS } from "../src/helpers/note";
 import fs from "node:fs";
 import path from "node:path";
 import { loadEnvFile } from "node:process";
@@ -20,31 +21,6 @@ import { buildOriginalNotePrompt } from "../src/prompts/note-prompt";
 
 const OUTPUT_DIR = path.join(process.cwd(), "outputs");
 const EXPECTED_DIR = path.join(process.cwd(), "evals", "expected");
-
-export const HEADINGS: Record<Language, string[]> = {
-  en: [
-    "CHIEF COMPLAINT",
-    "HISTORY OF PRESENT ILLNESS",
-    "CURRENT MEDICATIONS",
-    "ALLERGIES",
-    "VITALS AND EXAM",
-    "ASSESSMENT",
-    "PLAN",
-    "FOLLOW-UP",
-    "PATIENT SUMMARY",
-  ],
-  ka: [
-    "მთავარი ჩივილი",
-    "ანამნეზი",
-    "მიმდინარე მედიკამენტები",
-    "ალერგია",
-    "ვიტალური მაჩვენებლები და გასინჯვა",
-    "შეფასება",
-    "გეგმა",
-    "განმეორებითი ვიზიტი",
-    "შეჯამება პაციენტისთვის",
-  ],
-};
 
 export const NOT_MENTIONED: Record<Language, string> = {
   en: "Not mentioned",
