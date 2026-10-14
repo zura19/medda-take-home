@@ -61,14 +61,14 @@ Screenshots use local mock responses; the sample note is unrelated to the select
 
 | Prompt   | Checks passed | Pass rate |
 | -------- | ------------- | --------- |
-| Original | 9/105         | 9%        |
-| Mine     | 105/105       | 100%      |
+| Original | 9/113         | 8%        |
+| Mine     | 113/113       | 100%      |
 
 I added section parsing, structure checks, and content checks. Empty notes fail the language check, and failed generation or missing cached notes count as failures. All 8 transcripts now have expectations.
 
 For the 4 missing files, I checked medication doses, missing allergies, follow-up, and rejected treatments against the transcripts. Georgian checks use word stems where possible to allow different endings.
 
-The 7 local tests and TypeScript check passed. Across all 8 transcripts, the original prompt passed 9/105 checks (9%) and the improved prompt passed 105/105 (100%). The original prompt only asks for a summary; the improved prompt gives explicit rules for sections, language, and content. The improved set includes retries during prompt development, so it isn't a single fresh run or a stability test.
+The 9 local tests and TypeScript check passed. After adding the patient-summary length check, I rechecked the cached notes without API calls: the original prompt passed 9/113 checks (8%) and the improved prompt passed 113/113 (100%). The original cache is missing `en-04`, which counts as failed checks. The original prompt only asks for a summary; the improved prompt gives explicit rules for sections, language, and content. The improved set includes retries during prompt development, so it isn't a single fresh run or a stability test.
 
 I clarified that missing medications or allergies are different from an explicit denial. The antibiotic check allows a few exact deferral statements and still rejects other antibiotic mentions, including contradictory prescriptions.
 
@@ -80,7 +80,11 @@ These are simple text checks. A note can contain the expected words but still be
 
 Your extra check(s) and why:
 
+I added a 3–5 sentence check for the patient summary in both languages. I chose it because `NOTE_SPEC.md` requires a short summary that patients can read easily, and the existing checks did not enforce its length. It counts sentences separated by `.`, `!`, or `?`, without splitting decimal measurements such as `38.4`. Missing or empty summaries fail. This is a simple punctuation check; abbreviations can affect the count, and it does not check readability or factual completeness.
+
 Cross-language evals (`--lang`):
+
+Not implemented because Gemini very often throws an error about high demand on the model, so it has not point.
 
 Stability across 3 runs:
 

@@ -109,6 +109,19 @@ export function checkStructure(note: string, language: Language): CheckResult[] 
   ];
 }
 
+/** Count punctuation-separated sentences without splitting decimal measurements. */
+export function checkPatientSummary(note: string, language: Language): CheckResult {
+  const heading = HEADINGS[language][8];
+  const summary = parseSections(note, language)[heading] ?? "";
+  const count = summary.split(/[.!?]+(?:\s+|$)/u)
+    .filter((sentence) => /[\p{L}\p{N}]/u.test(sentence)).length;
+  return {
+    name: "patient summary length",
+    passed: count >= 3 && count <= 5,
+    detail: `${heading} has ${count} sentences; expected 3–5`,
+  };
+}
+
 /**
  * Content check against evals/expected/<id>.json.
  * Return one CheckResult per rule, with a `detail` that explains what failed,
@@ -174,7 +187,6 @@ function runCheck(name: string, fn: () => CheckResult | CheckResult[]): CheckRes
 }
 
 async function main() {
-  if (fs.existsSync(".env.local")) loadEnvFile(".env.local");
   const { values } = parseArgs({ options: {
     cached: { type: "boolean", default: false },
     only: { type: "string" },
@@ -185,7 +197,10 @@ async function main() {
     throw new Error("--prompt must be original or improved");
   }
 
-  if (!cached) fs.mkdirSync(path.join(OUTPUT_DIR, prompt), { recursive: true });
+  if (!cached) {
+    if (fs.existsSync(".env.local")) loadEnvFile(".env.local");
+    fs.mkdirSync(path.join(OUTPUT_DIR, prompt), { recursive: true });
+  }
   const transcripts = loadTranscripts().filter((t) => !only || t.id === only);
   if (only === "" || transcripts.length === 0) throw new Error("No matching transcript. Check --only <id>.");
   console.log(`Prompt: ${prompt} | ${cached ? "Reading" : "Saving"} outputs/${prompt}/`);
@@ -206,6 +221,7 @@ async function main() {
     const results: CheckResult[] = [
       ...runCheck("language", () => checkLanguage(note, t.language)),
       ...runCheck("structure", () => checkStructure(note, t.language)),
+      ...runCheck("patient summary length", () => checkPatientSummary(note, t.language)),
     ];
 
     const expected = loadExpected(t.id);

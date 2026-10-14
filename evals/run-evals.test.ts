@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
 import path from "node:path";
-import { NOT_MENTIONED, checkLanguage, checkStructure, checkExpectations, parseSections, type Expected } from "./run-evals";
+import { NOT_MENTIONED, checkLanguage, checkStructure, checkPatientSummary, checkExpectations, parseSections, type Expected } from "./run-evals";
 
 for (const language of ["en", "ka"] as const) {
   const note = HEADINGS[language].map((heading) => `${heading}\n${NOT_MENTIONED[language]}`).join("\n\n");
@@ -30,6 +30,21 @@ for (const language of ["en", "ka"] as const) {
     const expected = { id: "test", sections: { [HEADINGS[language][0]]: { notMentioned: true } } };
     assert.ok(checkExpectations(parseSections(note, language), expected, language)[0].passed);
     assert.equal(checkExpectations({ [HEADINGS[language][0]]: `${NOT_MENTIONED[language]}.` }, expected, language)[0].passed, false);
+  });
+  test(`${language}: patient summary needs 3–5 sentences, including decimal measurements`, () => {
+    const sentences = language === "en"
+      ? ["Your temperature is 38.4 °C.", "Take your medicine!", "Can you return in 2 weeks?", "Drink fluids.", "Rest at home.", "Call tomorrow."]
+      : ["თქვენი ტემპერატურაა 38.4 °C.", "მიიღეთ წამალი!", "მოხვალთ 2 კვირაში?", "მიიღეთ სითხე.", "დაისვენეთ სახლში.", "დარეკეთ ხვალ."];
+    const withSummary = (summary: string) => note.replace(`${HEADINGS[language][8]}\n${NOT_MENTIONED[language]}`, `${HEADINGS[language][8]}\n${summary}`);
+    for (const count of [2, 3, 5, 6]) {
+      const result = checkPatientSummary(withSummary(sentences.slice(0, count).join("\r\n")), language);
+      assert.equal(result.passed, count >= 3 && count <= 5);
+      assert.ok(result.detail?.includes(`${count} sentences`));
+    }
+    for (const summary of ["", "  ", "... ! ?", NOT_MENTIONED[language], sentences.join(" ").replace(/[.!?]/g, "")]) {
+      assert.equal(checkPatientSummary(withSummary(summary), language).passed, false);
+    }
+    assert.equal(checkPatientSummary(note.split("\n\n").slice(0, -1).join("\n\n"), language).passed, false);
   });
 }
 
