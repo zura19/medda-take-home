@@ -61,12 +61,18 @@ Screenshots use local mock responses; the sample note is unrelated to the select
 
 | Prompt   | Checks passed | Pass rate |
 | -------- | ------------- | --------- |
-| Original |               |           |
-| Mine     |               |           |
+| Original | Pending       | Pending   |
+| Mine     | 102/105       | 97%       |
 
-How you chose the expectations for en-02, en-03, ka-01, ka-03:
+I added section parsing, structure checks, and content checks. Empty notes fail the language check, and failed generation or missing cached notes count as failures. All 8 transcripts now have expectations.
 
-Weaknesses of these evals (what could pass the checks but still be a bad note?):
+For the 4 missing files, I checked medication doses, missing allergies, follow-up, and rejected treatments against the transcripts. Georgian checks use word stems where possible to allow different endings.
+
+The 6 local tests and TypeScript check passed. I generated notes for all 8 transcripts with Gemini. Two requests initially returned 503 errors and succeeded on retry. Running `npm run eval -- --cached` then gave 102/105 (97%). The full original-prompt run is still pending.
+
+Three checks still fail: `ka-03` and `ka-04` don't use the exact missing-information phrase for current medications. The other failure is a limitation of the check: `ka-03` correctly says antibiotics are deferred until the X-ray result, but the check rejects any mention of antibiotics. These issues are still pending.
+
+These are simple text checks. A note can contain the expected words but still be wrong or incomplete. Valid wording can also fail, and exclusions cannot tell a prescription from a negated mention. They do not replace a factual review.
 
 ## Middle-level extras (if applicable)
 

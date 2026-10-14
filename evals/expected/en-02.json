@@ -1,0 +1,9 @@
+{
+  "id": "en-02",
+  "sections": {
+    "CURRENT MEDICATIONS": { "mustInclude": ["metformin", "500 mg"], "mustNotInclude": ["1000 mg"] },
+    "ALLERGIES": { "notMentioned": true },
+    "PLAN": { "mustInclude": ["metformin", "1000 mg", "dietitian"] },
+    "FOLLOW-UP": { "mustInclude": ["3 months", "HbA1c"] }
+  }
+}

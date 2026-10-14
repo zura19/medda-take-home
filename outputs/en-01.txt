@@ -1,3 +1,26 @@
-The patient visited Dr. Patel complaining of a sore throat and fever. After a physical examination and a positive rapid strep test, the doctor diagnosed the patient with strep throat. 
+CHIEF COMPLAINT
+Sore throat and painful swallowing.
 
-Due to the patient's penicillin allergy, Dr. Patel prescribed a five-day course of azithromycin. The doctor advised the patient to stay home from work until they have been on antibiotics for 24 hours and are fever-free, to use paracetamol for pain management, and to seek immediate care if they experience difficulty breathing or swallowing.
+HISTORY OF PRESENT ILLNESS
+Patient reports a sore throat for 3 days with painful swallowing. Patient reports a fever of 38.6 °C last night and denies cough.
+
+CURRENT MEDICATIONS
+None
+
+ALLERGIES
+Penicillin (hives).
+
+VITALS AND EXAM
+Temperature 38.4 °C. Tonsils swollen with white patches. Tender lymph nodes in the neck. Rapid strep test positive.
+
+ASSESSMENT
+Strep throat.
+
+PLAN
+Prescribed azithromycin 500 mg on day 1, then 250 mg once daily for 4 days. Advised to take paracetamol for pain. Stay home until 24 hours after starting antibiotics and fever has resolved.
+
+FOLLOW-UP
+Return if unable to swallow liquids or if experiencing trouble breathing. Return if not better in 1 week.
+
+PATIENT SUMMARY
+You have strep throat. Take the prescribed azithromycin as directed and use paracetamol for pain. Stay home from work until you have been on antibiotics for 24 hours and your fever is gone. Seek medical attention immediately if you have trouble breathing or cannot swallow liquids, or return in 1 week if you do not feel better.

@@ -1,0 +1,9 @@
+{
+  "id": "en-03",
+  "sections": {
+    "CURRENT MEDICATIONS": { "mustInclude": ["None"], "mustNotInclude": ["ibuprofen"] },
+    "ALLERGIES": { "notMentioned": true },
+    "ASSESSMENT": { "mustInclude": ["sprain", "2"] },
+    "PLAN": { "mustInclude": ["ibuprofen", "400 mg", "5 days", "physiotherapy"], "mustNotInclude": ["X-ray", "Xray"] }
+  }
+}

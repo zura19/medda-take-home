@@ -6,7 +6,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "eval": "tsx evals/run-evals.ts"
+    "eval": "tsx evals/run-evals.ts",
+    "eval:test": "tsx --test evals/run-evals.test.ts"
   },
   "dependencies": {
     "next": "^16.4.0",

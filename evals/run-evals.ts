@@ -14,8 +14,6 @@ import { loadEnvFile } from "node:process";
 import { loadTranscripts, type Language, type Transcript } from "../src/lib/transcripts";
 import { generateNote } from "../src/lib/notes";
 
-if (fs.existsSync(".env.local")) loadEnvFile(".env.local");
-
 const OUTPUT_DIR = path.join(process.cwd(), "outputs");
 const EXPECTED_DIR = path.join(process.cwd(), "evals", "expected");
 
@@ -80,7 +78,7 @@ export function checkLanguage(note: string, language: Language): CheckResult {
   const letters = georgian + latin;
   const georgianShare = letters === 0 ? 0 : georgian / letters;
 
-  const passed = language === "ka" ? georgianShare > 0.8 : georgianShare < 0.05;
+  const passed = letters > 0 && (language === "ka" ? georgianShare > 0.8 : georgianShare < 0.05);
   return {
     name: "language",
     passed,
@@ -89,7 +87,7 @@ export function checkLanguage(note: string, language: Language): CheckResult {
 }
 
 // ---------------------------------------------------------------------------
-// TODO (Part 4): implement the functions below.
+// Section, structure, and content checks.
 // ---------------------------------------------------------------------------
 
 /**
@@ -99,7 +97,14 @@ export function checkLanguage(note: string, language: Language): CheckResult {
  * the note should simply be missing from the result.
  */
 export function parseSections(note: string, language: Language): Record<string, string> {
-  throw new Error("parseSections is not implemented");
+  const lines = note.replace(/\r\n/g, "\n").split("\n");
+  const headings = lines.flatMap((line, index) =>
+    HEADINGS[language].includes(line) ? [{ heading: line, index }] : [],
+  );
+  return Object.fromEntries(headings.map(({ heading, index }, i) => [
+    heading,
+    lines.slice(index + 1, headings[i + 1]?.index).join("\n").trim(),
+  ]));
 }
 
 /**
@@ -108,7 +113,18 @@ export function parseSections(note: string, language: Language): Record<string, 
  * You may return several CheckResults if that makes failures easier to read.
  */
 export function checkStructure(note: string, language: Language): CheckResult[] {
-  throw new Error("checkStructure is not implemented");
+  const text = note.replace(/\r\n/g, "\n").trim();
+  const headings = HEADINGS[language];
+  const found = text.split("\n").filter((line) => headings.includes(line));
+  const sections = parseSections(text, language);
+  const reconstructed = headings.map((heading) => `${heading}\n${sections[heading] ?? ""}`).join("\n\n");
+  const markdown = /(^\s*(?:#{1,6}\s|[-*+]\s|\d+[.)]\s|>|```|~~~|\|))|\*\*|__|`|\[[^\]]+\]\([^)]+\)/m;
+  return [
+    { name: "headings", passed: found.length === headings.length && found.every((heading, i) => heading === headings[i]), detail: "Expected all 9 exact headings once, in order" },
+    { name: "section content", passed: headings.every((heading) => Boolean(sections[heading])), detail: "Every section must have text" },
+    { name: "spacing", passed: text === reconstructed, detail: "Expected section text below each heading, one empty line between sections, and no preamble" },
+    { name: "plain text", passed: !markdown.test(text), detail: "Markdown formatting is not allowed" },
+  ];
 }
 
 /**
@@ -121,7 +137,21 @@ export function checkExpectations(
   expected: Expected,
   language: Language,
 ): CheckResult[] {
-  throw new Error("checkExpectations is not implemented");
+  return Object.entries(expected.sections).flatMap(([heading, rules]) => {
+    const content = sections[heading];
+    const lower = content?.toLowerCase();
+    const results: CheckResult[] = [];
+    for (const phrase of rules.mustInclude ?? []) {
+      results.push({ name: "must include", passed: Boolean(lower?.includes(phrase.toLowerCase())), detail: `${heading} should include "${phrase}"` });
+    }
+    for (const phrase of rules.mustNotInclude ?? []) {
+      results.push({ name: "must not include", passed: Boolean(content) && !lower?.includes(phrase.toLowerCase()), detail: `${heading} must exist and should not include "${phrase}"` });
+    }
+    if (rules.notMentioned) {
+      results.push({ name: "not mentioned", passed: content === NOT_MENTIONED[language], detail: `${heading} should be exactly "${NOT_MENTIONED[language]}"` });
+    }
+    return results;
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -155,6 +185,7 @@ function runCheck(name: string, fn: () => CheckResult | CheckResult[]): CheckRes
 }
 
 async function main() {
+  if (fs.existsSync(".env.local")) loadEnvFile(".env.local");
   const args = process.argv.slice(2);
   const cached = args.includes("--cached");
   const onlyIndex = args.indexOf("--only");
@@ -162,17 +193,19 @@ async function main() {
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   const transcripts = loadTranscripts().filter((t) => !only || t.id === only);
+  if ((onlyIndex >= 0 && !only) || transcripts.length === 0) throw new Error("No matching transcript. Check --only <id>.");
 
   let total = 0;
   let passed = 0;
 
   for (const t of transcripts) {
-    let note: string;
+    let note = "";
+    let noteFailed = false;
     try {
       note = await getNote(t, cached);
     } catch (err) {
       console.log(`\n✗ ${t.id}  could not get note: ${(err as Error).message}`);
-      continue;
+      noteFailed = true;
     }
 
     const results: CheckResult[] = [
@@ -191,6 +224,12 @@ async function main() {
       results.push({ name: "expectations", passed: false, detail: `missing evals/expected/${t.id}.json` });
     }
 
+    if (noteFailed) {
+      results.forEach((result) => {
+        result.passed = false;
+        result.detail = "Could not evaluate: no note available";
+      });
+    }
     const ok = results.filter((r) => r.passed).length;
     total += results.length;
     passed += ok;
@@ -203,6 +242,12 @@ async function main() {
 
   const rate = total === 0 ? 0 : Math.round((passed / total) * 100);
   console.log(`\nPassed ${passed}/${total} checks (${rate}%)`);
+  if (passed < total) process.exitCode = 1;
 }
 
-main();
+if (require.main === module) {
+  main().catch((err) => {
+    console.error((err as Error).message);
+    process.exitCode = 1;
+  });
+}
