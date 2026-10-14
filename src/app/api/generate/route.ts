@@ -5,9 +5,23 @@ import { generateNote } from "../../../lib/notes";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  const body = await req.json();
+  const transcriptId = body?.transcriptId;
+  if (typeof transcriptId !== "string" || !transcriptId.trim()) {
+    return NextResponse.json(
+      { error: "transcriptId must be a non-empty string." },
+      { status: 400 },
+    );
+  }
+
   try {
-    const { transcriptId } = await req.json();
-    const transcript = getTranscript(transcriptId)!;
+    const transcript = getTranscript(transcriptId);
+    if (!transcript) {
+      return NextResponse.json(
+        { error: "Transcript not found." },
+        { status: 404 },
+      );
+    }
     // TODO (Part 3): use the note language chosen in the UI instead of the transcript's language.
     const note = await generateNote(transcript, transcript.language);
     return NextResponse.json({ note });
