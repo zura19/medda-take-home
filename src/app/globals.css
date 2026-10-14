@@ -65,8 +65,10 @@ h2 { font-size: 16px; margin: 0 0 12px; }
   background: var(--border);
 }
 
-.panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.panel-header { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .panel-header h2 { margin: 0; }
+.language-selector { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.language-selector select { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; }
 
 .primary {
   background: var(--accent);

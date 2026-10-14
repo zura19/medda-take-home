@@ -33,12 +33,13 @@ PATIENT SUMMARY
 You have a skin reaction, most likely from a plant in your garden. Use the cream twice a day for one week and take the allergy tablet at night to help with the itch. Wear gloves when you garden. Come back in 2 weeks if the rash has not improved.`;
 
 export async function complete(prompt: Prompt): Promise<string> {
-  if ((process.env.LLM_PROVIDER = "mock")) {
+  if (process.env.LLM_PROVIDER === "mock") {
     await new Promise((resolve) => setTimeout(resolve, 600));
     return MOCK_RESPONSE;
   }
   if (process.env.LLM_PROVIDER === "anthropic") return callAnthropic(prompt);
   if (process.env.LLM_PROVIDER === "openai") return callOpenAICompatible(prompt);
+  if (process.env.LLM_PROVIDER === "gemini") return callGemini(prompt);
   throw new Error(`Unknown LLM_PROVIDER: ${process.env.LLM_PROVIDER}`);
 }
 
@@ -46,6 +47,37 @@ function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) throw new Error(`Missing environment variable ${name}`);
   return value;
+}
+
+async function callGemini(prompt: Prompt): Promise<string> {
+  const model = requireEnv("LLM_MODEL");
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-goog-api-key": requireEnv("GEMINI_API_KEY"),
+      },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt.user }] }],
+        ...(prompt.system ? { systemInstruction: { parts: [{ text: prompt.system }] } } : {}),
+        generationConfig: { temperature: 0 },
+      }),
+    },
+  );
+  if (!res.ok) throw new Error(`Gemini API error ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  const candidate = data.candidates?.[0];
+  if (candidate?.finishReason && candidate.finishReason !== "STOP") {
+    throw new Error(`Gemini did not complete the note: ${candidate.finishReason}`);
+  }
+  const text = (candidate?.content?.parts ?? [])
+    .filter((part: { text?: string; thought?: boolean }) => typeof part.text === "string" && !part.thought)
+    .map((part: { text: string }) => part.text)
+    .join("");
+  if (!text.trim()) throw new Error("Gemini returned no note text.");
+  return text;
 }
 
 async function callAnthropic(prompt: Prompt): Promise<string> {

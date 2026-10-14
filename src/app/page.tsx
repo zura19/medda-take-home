@@ -13,6 +13,7 @@ type TranscriptItem = {
 export default function Home() {
   const [transcripts, setTranscripts] = useState<TranscriptItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [noteLanguage, setNoteLanguage] = useState<"en" | "ka">("en");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -61,7 +62,7 @@ export default function Home() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ transcriptId: selectedId }),
+        body: JSON.stringify({ transcriptId: selectedId, language: noteLanguage }),
       });
       const data = await res.json();
       if (requestId !== generationId.current) return;
@@ -110,6 +111,7 @@ export default function Home() {
                   generationId.current++;
                   setLoading(false);
                   setSelectedId(t.id);
+                  setNoteLanguage(t.language);
                   setNote("");
                   setError(null);
                 }}
@@ -136,7 +138,23 @@ export default function Home() {
       <section className="panel">
         <div className="panel-header">
           <h2>Clinical note</h2>
-          {/* TODO (Part 3): add a note language selector (English / Georgian) */}
+          <label className="language-selector">
+            Note language
+            <select
+              value={noteLanguage}
+              disabled={!selectedId}
+              onChange={(event) => {
+                generationId.current++;
+                setLoading(false);
+                setNote("");
+                setError(null);
+                setNoteLanguage(event.target.value as "en" | "ka");
+              }}
+            >
+              <option value="en">English</option>
+              <option value="ka">Georgian</option>
+            </select>
+          </label>
           <button
             className="primary"
             onClick={generate}

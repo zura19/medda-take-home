@@ -1,0 +1,3 @@
+The patient visited Dr. Patel complaining of a sore throat and fever. After a physical examination and a positive rapid strep test, the doctor diagnosed the patient with strep throat. 
+
+Due to the patient's penicillin allergy, Dr. Patel prescribed a five-day course of azithromycin. The doctor advised the patient to stay home from work until they have been on antibiotics for 24 hours and are fever-free, to use paracetamol for pain management, and to seek immediate care if they experience difficulty breathing or swallowing.

@@ -29,7 +29,15 @@
 
 How it works (UI → API → generation), and how you validate the language:
 
+The note-language selector offers English and Georgian and defaults to each selected transcript's language. The UI sends `language` with `transcriptId`. The API accepts only `en` or `ka`, returning HTTP 400 for other supplied values; omitted language defaults to the transcript's language. `generateNote` passes the choice to the prompt, which requests translated content, exact matching headings, and localized missing-information phrases. Changing the language clears the note/error and invalidates in-flight results. The original prompt is preserved as `buildOriginalNotePrompt` for the later baseline comparison.
+
 Does Georgian → English and English → Georgian work? Any problems you noticed:
+
+Manual tests with Gemini confirmed Georgian → English using `ka-01` and English → Georgian using `en-01`. A Georgian → Georgian test with `ka-01` also succeeded. The supplied results used the selected language and all 9 matching headings in the correct order. These examples confirm the language-selection flow; they do not establish consistent clinical accuracy across all transcripts.
+
+Remaining prompt-quality issues observed in these results include numbers written as words, inconsistent temperature-unit formatting, inferred assessments or causal claims not explicitly stated in the transcript, and patient summaries that sometimes use third person or omit follow-up instructions or warning signs. These will be addressed in Part 4.
+
+Local checks also pass for both language directions, both same-language combinations, invalid values, omitted-language defaults, selector state, and stale responses. TypeScript checking passes. Mock mode still returns the fixed English sample; actual translation was tested with Gemini.
 
 ## Part 4: Note generation and prompt
 

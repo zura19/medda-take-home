@@ -7,9 +7,17 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   const body = await req.json();
   const transcriptId = body?.transcriptId;
+  const requestedLanguage = body?.language;
   if (typeof transcriptId !== "string" || !transcriptId.trim()) {
     return NextResponse.json(
       { error: "transcriptId must be a non-empty string." },
+      { status: 400 },
+    );
+  }
+
+  if (requestedLanguage !== undefined && requestedLanguage !== "en" && requestedLanguage !== "ka") {
+    return NextResponse.json(
+      { error: 'language must be "en" or "ka".' },
       { status: 400 },
     );
   }
@@ -22,8 +30,7 @@ export async function POST(req: Request) {
         { status: 404 },
       );
     }
-    // TODO (Part 3): use the note language chosen in the UI instead of the transcript's language.
-    const note = await generateNote(transcript, transcript.language);
+    const note = await generateNote(transcript, requestedLanguage ?? transcript.language);
     return NextResponse.json({ note });
   } catch (err) {
     console.error(err);
