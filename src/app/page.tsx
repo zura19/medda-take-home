@@ -1,90 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { NoteView } from "./components/NoteView";
-
-type TranscriptItem = {
-  id: string;
-  language: "en" | "ka";
-  title: string;
-  transcript: string;
-};
+import { useHomePage } from "../hooks/useHomePage";
 
 export default function Home() {
-  const [transcripts, setTranscripts] = useState<TranscriptItem[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [noteLanguage, setNoteLanguage] = useState<"en" | "ka">("en");
-  const [note, setNote] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [transcriptsLoading, setTranscriptsLoading] = useState(true);
-  const [transcriptsError, setTranscriptsError] = useState<string | null>(null);
-  const generationId = useRef(0);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    async function loadTranscripts() {
-      try {
-        const res = await fetch("/api/transcripts", {
-          signal: controller.signal,
-        });
-        if (!res.ok) throw new Error("Failed to load transcripts");
-
-        const data = await res.json();
-        if (!controller.signal.aborted) setTranscripts(data);
-      } catch {
-        if (!controller.signal.aborted) {
-          setTranscriptsError(
-            "Failed to load transcripts. Please reload the page to try again.",
-          );
-        }
-      } finally {
-        if (!controller.signal.aborted) setTranscriptsLoading(false);
-      }
-    }
-
-    loadTranscripts();
-    return () => {
-      controller.abort();
-      generationId.current++;
-    };
-  }, []);
-
-  const selected = transcripts.find((t) => t.id === selectedId);
-
-  async function generate() {
-    if (!selectedId) return;
-    const requestId = ++generationId.current;
-    setLoading(true);
-    setError(null);
-    setNote("");
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ transcriptId: selectedId, language: noteLanguage }),
-      });
-      const data = await res.json();
-      if (requestId !== generationId.current) return;
-      if (!res.ok) {
-        setError(
-          data.error || "Failed to generate the note. Please try again.",
-        );
-        return;
-      }
-      setNote(data.note);
-    } catch {
-      if (requestId === generationId.current) {
-        setError("Failed to generate the note. Please try again.");
-      }
-    } finally {
-      if (requestId === generationId.current) setLoading(false);
-    }
-  }
+  const {
+    transcripts,
+    selectedId,
+    selected,
+    transcriptTurns,
+    noteLanguage,
+    note,
+    error,
+    loading,
+    transcriptsLoading,
+    transcriptsError,
+    selectTranscript,
+    changeNoteLanguage,
+    generate,
+  } = useHomePage();
 
   return (
     <main className="layout">
-      <aside className="sidebar">
+      <aside className="sidebar" aria-label="Visit transcripts" tabIndex={0}>
         <h1>Medda Notes</h1>
         <p className="muted">Pick a visit transcript</p>
         {transcriptsLoading && (
@@ -107,14 +45,7 @@ export default function Home() {
             <li key={t.id}>
               <button
                 className={t.id === selectedId ? "item active" : "item"}
-                onClick={() => {
-                  generationId.current++;
-                  setLoading(false);
-                  setSelectedId(t.id);
-                  setNoteLanguage(t.language);
-                  setNote("");
-                  setError(null);
-                }}
+                onClick={() => selectTranscript(t)}
               >
                 <span className="badge">
                   {t.language === "ka" ? "KA" : "EN"}
@@ -126,16 +57,23 @@ export default function Home() {
         </ul>
       </aside>
 
-      <section className="panel">
+      <section className="panel" aria-label="Transcript conversation" tabIndex={0} key={selectedId}>
         <h2>Transcript</h2>
         {selected ? (
-          <div className="transcript">{selected.transcript}</div>
+          <ol className="transcript" lang={selected.language}>
+            {transcriptTurns.map((turn, index) => (
+              <li className={`transcript-turn ${turn.role}`} key={`${selected.id}-${index}`}>
+                {turn.speaker && <span className="transcript-speaker">{turn.speaker}</span>}
+                <p>{turn.text}</p>
+              </li>
+            ))}
+          </ol>
         ) : (
           <p className="muted">No transcript selected.</p>
         )}
       </section>
 
-      <section className="panel">
+      <section className="panel note-panel" aria-label="Clinical note" tabIndex={0}>
         <div className="panel-header">
           <h2>Clinical note</h2>
           <label className="language-selector">
@@ -143,13 +81,7 @@ export default function Home() {
             <select
               value={noteLanguage}
               disabled={!selectedId}
-              onChange={(event) => {
-                generationId.current++;
-                setLoading(false);
-                setNote("");
-                setError(null);
-                setNoteLanguage(event.target.value as "en" | "ka");
-              }}
+              onChange={(event) => changeNoteLanguage(event.target.value as "en" | "ka")}
             >
               <option value="en">English</option>
               <option value="ka">Georgian</option>
@@ -163,12 +95,14 @@ export default function Home() {
             {loading ? "Generating…" : "Generate note"}
           </button>
         </div>
-        {error && <p className="error">{error}</p>}
-        {note ? (
-          <NoteView note={note} />
-        ) : (
-          !loading && !error && <p className="muted">No note yet.</p>
-        )}
+        <div className="note-content">
+          {error && <p className="error">{error}</p>}
+          {note ? (
+            <NoteView note={note} />
+          ) : (
+            !loading && !error && <p className="muted">No note yet.</p>
+          )}
+        </div>
       </section>
     </main>
   );

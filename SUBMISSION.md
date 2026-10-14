@@ -7,15 +7,15 @@
 
 ## Part 1: Frontend bugs
 
-| #   | Symptom                                                             | Cause                                                | Fix                                                                                                       |
-| --- | ------------------------------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| 1   | transcript data was fetching infinitely.                            | `useEffect` hook had no dependency array.            | Added empty dependency array and now data is fetched only once, once the page is loaded.                  |
-| 2   | Generation errors appeared as empty results.                        | The frontend did not check the HTTP response status. | Check `res.ok` and display the API error message, with a fallback message.                                |
-| 3   | The Generate note button could remain stuck after a failed request. | Loading was reset only on success.                   | Reset loading in `finally` for successful requests, API errors, and network or response-parsing failures. |
-| 4 | Transcript language badges were reversed. | The Georgian condition displayed EN and the English condition displayed KA. | Display KA for Georgian and EN for English. |
-| 5 | Loading transcripts had no progress or failure feedback. | The initial fetch did not check HTTP errors or handle rejected requests. | Added loading, error, and empty states; abort the fetch on cleanup and show reload instructions on failure. |
-| 6 | A generated note could appear under a different selected visit. | An earlier generation request could update state after the visit changed. | Track generation requests with a ref; invalidate them on selection changes and cleanup, and ignore stale results, errors, and loading updates. |
-| 7 | Transcript dialogue ran together. | Normal HTML whitespace collapsed the source line breaks. | Use `white-space: pre-wrap` on the transcript. |
+| #   | Symptom                                                             | Cause                                                                       | Fix                                                                                                                                            |
+| --- | ------------------------------------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | transcript data was fetching infinitely.                            | `useEffect` hook had no dependency array.                                   | Added empty dependency array and now data is fetched only once, once the page is loaded.                                                       |
+| 2   | Generation errors appeared as empty results.                        | The frontend did not check the HTTP response status.                        | Check `res.ok` and display the API error message, with a fallback message.                                                                     |
+| 3   | The Generate note button could remain stuck after a failed request. | Loading was reset only on success.                                          | Reset loading in `finally` for successful requests, API errors, and network or response-parsing failures.                                      |
+| 4   | Transcript language badges were reversed.                           | The Georgian condition displayed EN and the English condition displayed KA. | Display KA for Georgian and EN for English.                                                                                                    |
+| 5   | Loading transcripts had no progress or failure feedback.            | The initial fetch did not check HTTP errors or handle rejected requests.    | Added loading, error, and empty states; abort the fetch on cleanup and show reload instructions on failure.                                    |
+| 6   | A generated note could appear under a different selected visit.     | An earlier generation request could update state after the visit changed.   | Track generation requests with a ref; invalidate them on selection changes and cleanup, and ignore stale results, errors, and loading updates. |
+| 7   | Transcript dialogue ran together.                                   | Normal HTML whitespace collapsed the source line breaks.                    | Use `white-space: pre-wrap` on the transcript.                                                                                                 |
 
 ## Part 2: Backend bugs
 
@@ -68,7 +68,29 @@ Validation: TypeScript checking passed. With Gemini responses stubbed locally, a
 
 Screenshot:
 
+Desktop layout with independent scroll panels and speaker-labeled dialogue (local preview using the repository's fixed mock note):
+
+![Scrollable desktop panels](outputs/screenshots/scrollable-panels-desktop.jpg)
+
+Mobile layout at 390 px with the Georgian ka-01 conversation:
+
+![Scrollable mobile panels](outputs/screenshots/scrollable-panels-mobile.jpg)
+
 Your design decisions and why:
+
+- Keep all 9 sections in the specified order, with clear headings and spacing for scanning. Use the same component for English and Georgian, preserving the note's wording and setting the content language.
+- Give the patient summary a blue background and border so it is visually distinct from the clinical sections.
+- Highlight missing information in amber and show a count. Explicit “None” and “No known allergies” remain ordinary clinical content. Empty sections are labeled as empty rather than silently replaced with a clinical claim.
+- Copy the original plain-text note, including its headings and line breaks, rather than the display labels. Show accessible success/failure feedback and allow manual selection if clipboard access fails.
+- Fall back to the full original note if headings are missing, duplicated, out of order, or preceded by extra text. No note content is discarded.
+- Fix the page height at `100dvh`; each of the 3 panels scrolls independently. On mobile, the panels share the viewport in 3 stacked rows. Panels are keyboard-focusable, have visible focus outlines, and contain scroll gestures so scrolling does not move the whole page.
+- Display the conversation as a transcript document: a narrow speaker-label column, dialogue alongside it, and subtle horizontal dividers. Support English and Georgian labels, preserve conversation order and multiline text, and reset the transcript panel to the start when changing visits.
+- Keep the clinical-note title, language selector, and Generate note button in a sticky header with an opaque background. The note scrolls underneath while these controls stay accessible, including on mobile.
+- Keep `HEADINGS` and `parseNote` in `src/lib/notes.ts`. Match heading boundaries and map them to section bodies, memoizing the result in `NoteView` when the note changes. Homepage state, fetching, transcript parsing, and event handlers live in `src/hooks/useHomePage.ts`, leaving the page focused on rendering. No UI library or new dependency was needed.
+
+Validation: TypeScript checking passed. Browser previews covered English, Georgian, missing and empty sections, malformed-note fallback, and copy-success feedback. Desktop (1280 px) and mobile (390 px) layouts were inspected; the mobile preview and main page had no horizontal overflow. Local component checks verified exact original-text copying, clipboard failure/retry, stale copy-status clearing, and preservation of malformed note text. Screenshots use the actual component and stylesheet in a temporary local preview; no Gemini requests were made.
+
+Follow-up validation: the updated page measured exactly 800 px high in a 1366 × 800 viewport and 844 px high in a 390 × 844 viewport, with no page overflow. Transcript and note scrolling were checked independently with keyboard navigation. The clinical-note header's top position stayed unchanged before and after scrolling on desktop and mobile. The refactored parser passed checks for both languages, multiline and Windows-newline content, and malformed-note fallback. Updated screenshots show the transcript columns and sticky header using the actual page and components with local mock responses; the mock rash note is unrelated to the selected visit.
 
 ## Part 6: Evals
 
