@@ -21,7 +21,7 @@ export default function Home() {
     fetch("/api/transcripts")
       .then((res) => res.json())
       .then(setTranscripts);
-  });
+  }, []);
 
   const selected = transcripts.find((t) => t.id === selectedId);
 
@@ -60,7 +60,9 @@ export default function Home() {
                   setError(null);
                 }}
               >
-                <span className="badge">{t.language === "ka" ? "EN" : "KA"}</span>
+                <span className="badge">
+                  {t.language === "ka" ? "EN" : "KA"}
+                </span>
                 <span>{t.title}</span>
               </button>
             </li>
@@ -81,12 +83,20 @@ export default function Home() {
         <div className="panel-header">
           <h2>Clinical note</h2>
           {/* TODO (Part 3): add a note language selector (English / Georgian) */}
-          <button className="primary" onClick={generate} disabled={!selectedId || loading}>
+          <button
+            className="primary"
+            onClick={generate}
+            disabled={!selectedId || loading}
+          >
             {loading ? "Generating…" : "Generate note"}
           </button>
         </div>
         {error && <p className="error">{error}</p>}
-        {note ? <NoteView note={note} /> : !loading && <p className="muted">No note yet.</p>}
+        {note ? (
+          <NoteView note={note} />
+        ) : (
+          !loading && <p className="muted">No note yet.</p>
+        )}
       </section>
     </main>
   );
