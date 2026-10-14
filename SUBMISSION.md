@@ -35,7 +35,7 @@ Does Georgian → English and English → Georgian work? Any problems you notice
 
 Manual tests with Gemini confirmed Georgian → English using `ka-01` and English → Georgian using `en-01`. A Georgian → Georgian test with `ka-01` also succeeded. The supplied results used the selected language and all 9 matching headings in the correct order. These examples confirm the language-selection flow; they do not establish consistent clinical accuracy across all transcripts.
 
-Remaining prompt-quality issues observed in these results include numbers written as words, inconsistent temperature-unit formatting, inferred assessments or causal claims not explicitly stated in the transcript, and patient summaries that sometimes use third person or omit follow-up instructions or warning signs. These will be addressed in Part 4.
+Prompt-quality issues observed in these Part 3 results include numbers written as words, inconsistent temperature-unit formatting, inferred assessments or causal claims not explicitly stated in the transcript, and patient summaries that sometimes use third person or omit follow-up instructions or warning signs. Part 4 adds explicit rules targeting these issues; new live outputs still need verification.
 
 Local checks also pass for both language directions, both same-language combinations, invalid values, omitted-language defaults, selector state, and stale responses. TypeScript checking passes. Mock mode still returns the fixed English sample; actual translation was tested with Gemini.
 
@@ -43,11 +43,26 @@ Local checks also pass for both language directions, both same-language combinat
 
 Your generation approach (one call, several calls, JSON, self-check...) and why:
 
+One model call returns the plain-text note directly. The system prompt contains the formatting and clinical content rules, and the user message contains the transcript as JSON source data. This keeps the implementation simple without dependencies, a second model call, or a separate rendering pipeline. A final checking instruction asks the same model to correct mistakes before returning only the note; this is not an independent verifier. `buildOriginalNotePrompt` remains unchanged for the Part 6 baseline.
+
 Main decisions in your prompt(s):
+
+- Require the selected output language, all 9 exact headings in order, plain text, and one blank line between sections.
+- Distinguish missing information from explicitly absent allergies or medications, using exact localized phrases without added punctuation.
+- Prohibit inferred diagnoses and causal claims; preserve uncertainty, negation, and the distinction between ordered tests and results. An unstated assessment uses the missing-information phrase.
+- Separate current medication doses, previously stopped medications, and new prescriptions or changes. Exclude rejected treatment options from the plan and preserve every stated prescription detail.
+- Use digits and abbreviated units throughout, including the patient summary; distinguish historical and current measurements.
+- Require a 3–5 sentence patient summary addressed as “you” or “თქვენ”, using plain language and including both stated follow-up conditions and urgent warning signs without adding advice.
 
 Failures you saw in the generated notes and how you fixed them:
 
+The earlier Gemini results for ka-01 inferred uncontrolled hypertension and, in Georgian, claimed the blood pressure caused the symptoms. The English summary used third person and clinical jargon and omitted follow-up and warning signs. The en-01 Georgian summary omitted conditional follow-up. Outputs also used number words and added punctuation to exact absence phrases. The revised prompt adds explicit instructions for each of these observed failures. These are implemented prompt changes, not yet confirmed improvements in live output.
+
 Anything that still doesn't work well:
+
+Post-change Gemini outputs and measured improvement have not yet been verified. Local checks can verify prompt construction and generation wiring but cannot prove model compliance. The previously observed language-selection tests used the earlier prompt. Manual retesting should cover ka-01 in both languages and en-01 in Georgian, followed by all transcripts during Part 6. Prompt-only checks may still miss unsupported claims or omissions; no independent verifier or automatic retry is implemented. Mock mode remains a fixed English sample and cannot validate this prompt.
+
+Validation: TypeScript checking passed. With Gemini responses stubbed locally, all 8 transcripts in both output languages passed generation-wiring checks, including exact heading order, transcript preservation, and the unchanged original prompt. No real model calls were made for these checks.
 
 ## Part 5: Note view design
 

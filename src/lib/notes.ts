@@ -4,11 +4,7 @@ import type { Language, Transcript } from "./transcripts";
 
 /**
  * Generates a clinical note for a transcript, in the requested note language.
- *
- * TODO (Part 4): Improve clinical content accuracy according to NOTE_SPEC.md.
- * Design the generation however you think is best: one LLM call or several, JSON output
- * that you render to text in code, a self-check step, etc. Whatever you do inside,
- * the function must return the note as plain text that follows NOTE_SPEC.md, in `language`.
+ * Uses one model call with the format and content rules from NOTE_SPEC.md.
  */
 export async function generateNote(transcript: Transcript, language: Language): Promise<string> {
   return complete(buildNotePrompt(transcript, language));
