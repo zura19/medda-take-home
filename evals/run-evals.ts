@@ -31,6 +31,8 @@ export const NOT_MENTIONED: Record<Language, string> = {
 export type SectionExpectation = {
   /** Each string must appear in the section (case-insensitive). */
   mustInclude?: string[];
+  /** At least one phrase from each group must appear (case-insensitive). */
+  mustIncludeAny?: string[][];
   /** None of these strings may appear in the section (case-insensitive). */
   mustNotInclude?: string[];
   /** Exact allowed statements for a forbidden term; other mentions still fail. */
@@ -138,6 +140,9 @@ export function checkExpectations(
     const results: CheckResult[] = [];
     for (const phrase of rules.mustInclude ?? []) {
       results.push({ name: "must include", passed: Boolean(lower?.includes(phrase.toLowerCase())), detail: `${heading} should include "${phrase}"` });
+    }
+    for (const phrases of rules.mustIncludeAny ?? []) {
+      results.push({ name: "must include one of", passed: phrases.some((phrase) => Boolean(lower?.includes(phrase.toLowerCase()))), detail: `${heading} should include one of: ${phrases.join(", ")}` });
     }
     for (const phrase of rules.mustNotInclude ?? []) {
       const allowed = (rules.allowedMentions?.[phrase] ?? []).map((text) => text.toLowerCase());

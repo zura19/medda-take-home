@@ -1,26 +1,26 @@
 CHIEF COMPLAINT
-Sore throat and painful swallowing.
+Sore throat for 3 days and painful swallowing
 
 HISTORY OF PRESENT ILLNESS
-Patient reports throat pain for 3 days. Reports fever of 38.6 °C last night. Denies cough.
+Throat pain for 3 days with painful swallowing, fever of 38.6 °C last night, and no cough
 
 CURRENT MEDICATIONS
 None
 
 ALLERGIES
-Penicillin (hives).
+Penicillin causes hives as a child
 
 VITALS AND EXAM
-Temperature 38.4 °C. Tonsils swollen with white patches. Tender lymph nodes in neck. Rapid strep test positive.
+Temperature today is 38.4 °C, tonsils are swollen with white patches, and lymph nodes in the neck are tender
 
 ASSESSMENT
-Strep throat.
+Strep throat confirmed by a positive rapid strep test
 
 PLAN
-Prescribed azithromycin: 500 mg on day 1, then 250 mg once daily for 4 days. Take paracetamol for pain. Stay home until 24 hours of antibiotic treatment and fever resolution.
+Prescribed azithromycin 500 mg on day 1, then 250 mg once a day for 4 more days. Take paracetamol for the pain. Stay home from work until on the antibiotic for at least 24 hours and the fever is gone.
 
 FOLLOW-UP
-Return immediately if unable to swallow liquids or if experiencing trouble breathing. Otherwise, return in 1 week if symptoms do not improve.
+Return right away if unable to swallow liquids or experiencing trouble breathing, or return if not better in a week
 
 PATIENT SUMMARY
-You have strep throat. Take the prescribed azithromycin and use paracetamol for pain. Stay home until you have been on the antibiotic for 24 hours and your fever is gone. Seek medical care immediately if you cannot swallow liquids or have trouble breathing, or return in 1 week if you are not feeling better.
+You have strep throat with swollen tonsils, white patches, tender neck lymph nodes, and a temperature of 38.4 °C. Take azithromycin at 500 mg on day 1 and 250 mg once a day for 4 more days, and use paracetamol for pain. Stay home from work until you have been on the antibiotic for at least 24 hours and your fever is gone. Come back right away if you cannot swallow liquids or have trouble breathing, or return only if you are not better in 1 week.

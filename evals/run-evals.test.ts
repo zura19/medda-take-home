@@ -23,6 +23,7 @@ for (const language of ["en", "ka"] as const) {
       note.replace(NOT_MENTIONED[language], `**${NOT_MENTIONED[language]}**`),
       `Introduction\n${note}`,
       note.replace("\n\n", "\n"),
+      note.replace(HEADINGS[language][4], language === "ka" ? "ვიტალური მაჩვენებელი და გასინჯვა" : "VITAL AND EXAM"),
     ];
     for (const value of broken) assert.ok(checkStructure(value, language).some((r) => !r.passed));
     assert.equal(checkLanguage("", language).passed, false);
@@ -55,6 +56,39 @@ test("content rules are case-insensitive and missing sections cannot pass exclus
   assert.ok(checkExpectations({ PLAN: "Amoxicillin" }, expected, "en").every((r) => !r.passed));
 });
 
+test("each required alternative group must match and missing sections fail", () => {
+  const expected: Expected = { id: "test", sections: { ALLERGIES: {
+    mustIncludeAny: [["swelling", "edema"], ["face", "facial"]],
+  } } };
+  assert.ok(checkExpectations({ ALLERGIES: "FACIAL EDEMA" }, expected, "en").every((r) => r.passed));
+  assert.ok(checkExpectations({ ALLERGIES: "Swelling of the face" }, expected, "en").every((r) => r.passed));
+  const partial = checkExpectations({ ALLERGIES: "Swelling" }, expected, "en");
+  assert.equal(partial[0].passed, true);
+  assert.equal(partial[1].passed, false);
+  assert.ok(checkExpectations({}, expected, "en").every((r) => !r.passed));
+  assert.ok(checkExpectations({ ALLERGIES: "" }, expected, "en").every((r) => !r.passed));
+});
+
+test("ka-04 requires facial swelling and examination findings and excludes rejected naproxen", () => {
+  const expected: Expected = JSON.parse(fs.readFileSync("evals/expected/ka-04.json", "utf8"));
+  const sections = {
+    "ალერგია": "დიკლოფენაკზე სახის შეშუპება",
+    "მიმდინარე მედიკამენტები": NOT_MENTIONED.ka,
+    "ვიტალური მაჩვენებლები და გასინჯვა": "წელის კუნთები დაჭიმულია. ფეხის აწევის ტესტი უარყოფითია. რეფლექსები ნორმაშია.",
+    "გეგმა": "მიიღეთ პარაცეტამოლი 1 გ საჭიროებისამებრ.",
+    "განმეორებითი ვიზიტი": "მობრძანდით, თუ 2 კვირაში არ გაუმჯობესდა.",
+  };
+  const passes = (overrides: Record<string, string>) => checkExpectations({ ...sections, ...overrides }, expected, "ka").every((r) => r.passed);
+  assert.ok(passes({}));
+  assert.ok(passes({ "ალერგია": "დიკლოფენაკზე სახე დამისივდა" }));
+  assert.ok(passes({ "ვიტალური მაჩვენებლები და გასინჯვა": sections["ვიტალური მაჩვენებლები და გასინჯვა"].replace("დაჭიმულია", "დაძაბულია") }));
+  assert.equal(passes({ "ალერგია": "დიკლოფენაკზე (ერთხელ სახე დაუზიანდა)" }), false);
+  assert.equal(passes({ "ალერგია": "დიკლოფენაკზე შეშუპება" }), false);
+  assert.equal(passes({ "ვიტალური მაჩვენებლები და გასინჯვა": NOT_MENTIONED.ka }), false);
+  assert.equal(passes({ "ვიტალური მაჩვენებლები და გასინჯვა": "წელის კუნთები დაჭიმულია." }), false);
+  assert.equal(passes({ "გეგმა": "ნაპროქსენი არ დაინიშნა. მიიღეთ პარაცეტამოლი 1 გ." }), false);
+});
+
 test("all eight transcripts have expectations using valid headings", () => {
   const files = fs.readdirSync("data/transcripts").filter((file) => file.endsWith(".json"));
   assert.equal(files.length, 8);
@@ -79,6 +113,9 @@ test("antibiotic deferral allows only complete approved statements", () => {
   assert.ok(passes("გულმკერდის რენტგენოგრაფია."));
   for (const statement of planRules.allowedMentions!["ანტიბიოტიკ"]) {
     assert.ok(passes(`${statement}.`));
+    assert.equal(passes(`${statement}. დაიწყეთ ანტიბიოტიკი დღეს.`), false);
+    assert.equal(passes(`${statement}, მაგრამ დაიწყეთ ანტიბიოტიკი დღეს.`), false);
+    assert.equal(passes(`${statement} არასწორია.`), false);
   }
   assert.equal(passes("დაიწყეთ ანტიბიოტიკი დღეს."), false);
   assert.equal(passes("ანტიბიოტიკოთერაპია გადადებულია რენტგენის პასუხამდე. დაიწყეთ ანტიბიოტიკი დღეს."), false);

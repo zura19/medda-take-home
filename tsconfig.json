@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
@@ -30,7 +26,14 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }
+
+// "npm run eval -- --only en-01": "Generate and check one note with the improved prompt (1 model call). Replace en-01 with any transcript ID.",
+// "npm run eval -- --only en-01 --cached": "Check one saved improved note without model calls.",
+// "npm run eval -- --cached": "Check all saved improved notes without model calls.",
+// "npm run eval": "Generate and check all 8 notes with the improved prompt (8 model calls). Use --only for individual runs or retries after provider errors.",
+// "npm run eval -- --prompt original --only en-01": "Generate and check one note with the original baseline prompt (1 model call).",
+// "npm run eval -- --prompt original --cached": "Check all saved baseline notes without model calls. Add --only en-01 to check one.",
+// "npm run eval:test": "Run local evaluator tests without model calls.",
+// "npm run typecheck": "Check TypeScript types without generating notes."

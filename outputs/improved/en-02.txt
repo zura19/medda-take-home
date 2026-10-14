@@ -1,8 +1,8 @@
 CHIEF COMPLAINT
-Follow-up for diabetes management
+Not mentioned
 
 HISTORY OF PRESENT ILLNESS
-Patient reports taking metformin 500 mg 2 times daily. Experienced stomach upset during the first week of treatment, which has since resolved. Denies numbness or tingling in feet.
+HbA1c increased to 8.1 percent from 7.6 percent 3 months ago, with stomach upset during the first week of starting metformin that is now fine
 
 CURRENT MEDICATIONS
 Metformin 500 mg 2 times daily
@@ -11,16 +11,16 @@ ALLERGIES
 Not mentioned
 
 VITALS AND EXAM
-HbA1c 8.1 percent, previously 7.6 percent 3 months ago. Blood pressure 138/86 mmHg. Weight 94 kg. Foot exam normal.
+Blood pressure 138 over 86, weight 94 kg, foot exam normal, no numbness or tingling in feet
 
 ASSESSMENT
-Diabetes mellitus
+Not mentioned
 
 PLAN
-Increase metformin to 1000 mg 2 times daily. Referral to dietitian. Monitor fasting blood sugar a few times a week. Recheck blood pressure at next visit.
+Increase metformin to 1000 mg 2 times daily, refer to dietitian, keep checking fasting sugar a few times a week, recheck blood pressure at next visit before deciding on treatment
 
 FOLLOW-UP
-Return in 3 months for repeat HbA1c and blood pressure check.
+See you in 3 months with a repeat HbA1c
 
 PATIENT SUMMARY
-Your recent blood sugar test shows an increase, so you will increase your metformin dose to 1000 mg 2 times daily. You have been referred to a dietitian and should continue checking your fasting blood sugar a few times a week. We will recheck your blood pressure at your next visit in 3 months.
+Your HbA1c went up to 8.1 percent and your blood pressure is 138 over 86. Your doctor is increasing your metformin dose to 1000 mg 2 times daily and referring you to a dietitian. Keep checking your fasting sugar a few times a week and come back in 3 months with a repeat HbA1c.
