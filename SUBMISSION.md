@@ -15,7 +15,7 @@
 
 | # | Symptom | Cause | Fix |
 |---|---|---|---|
-| 1 | | | |
+| 1 | Georgian transcripts were unreadable. | UTF-8 JSON files were read as Latin-1, corrupting Georgian characters. | Read transcript files using `utf8`; verified all 8 transcripts load and match their UTF-8 source files. |
 
 ## Part 3: Note language selector
 

@@ -18,7 +18,7 @@ export function loadTranscripts(): Transcript[] {
     .filter((file) => file.endsWith(".json"))
     .sort()
     .map((file) => {
-      const raw = fs.readFileSync(path.join(TRANSCRIPTS_DIR, file), "latin1");
+      const raw = fs.readFileSync(path.join(TRANSCRIPTS_DIR, file), "utf8");
       return JSON.parse(raw) as Transcript;
     });
 }
