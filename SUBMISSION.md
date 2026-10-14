@@ -2,12 +2,12 @@
 
 **Name:**
 **Level applied for:** Junior / Middle
-**Time spent:** about **\_ hours
-**LLM used:** Gemini (model: \_**)
+**Time spent:** about 6-7 hours
+**LLM used for Parts 3–4 (provider + model):** Gemini-3.1-flash-lite & gemini-3.5-flash-lite
 
 ## Part 1: Frontend bugs
 
-| #   | Problem                                          | Cause                                    | Fix                                                             |
+| #   | Symptom                                          | Cause                                    | Fix                                                             |
 | --- | ------------------------------------------------ | ---------------------------------------- | --------------------------------------------------------------- |
 | 1   | Transcripts kept fetching.                       | `useEffect` had no dependency array.     | Added `[]` and cleanup.                                         |
 | 2   | Generation errors showed an empty result.        | The response status wasn't checked.      | Check `res.ok` and show the error.                              |
@@ -19,15 +19,13 @@
 
 ## Part 2: Backend bugs
 
-| #   | Problem                                      | Cause                                                           | Fix                                                                 |
+| #   | Symptom                                      | Cause                                                           | Fix                                                                 |
 | --- | -------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------- |
 | 1   | Georgian text was unreadable.                | Files were read as Latin-1.                                     | Changed the encoding to UTF-8.                                      |
 | 2   | Generate note couldn't find the visit.       | The frontend sent `transcriptId`; the API read `transcript_id`. | Use `transcriptId` on both sides.                                   |
 | 3   | Invalid IDs caused unclear errors.           | Missing input and lookup checks.                                | Return `400` for invalid IDs and `404` for unknown visits.          |
 | 4   | Every provider returned the mock note.       | Provider selection used `=` instead of `===`.                   | Fixed the comparison.                                               |
 | 5   | Generation failures returned success status. | The error response used the default `200`.                      | Return `500` with a friendly message and log details on the server. |
-
-I also added a native Gemini provider. Malformed JSON handling is still pending.
 
 ## Part 3: Note language selector
 
@@ -63,14 +61,14 @@ Screenshots use local mock responses; the sample note is unrelated to the select
 
 | Prompt   | Checks passed | Pass rate |
 | -------- | ------------- | --------- |
-| Original | 9/123         | 7%        |
+| Original | 10/123        | 8%        |
 | Mine     | 122/123       | 99%       |
 
 I added section parsing, structure checks, and content checks. Empty notes fail the language check, and failed generation or missing cached notes count as failures. All 8 transcripts now have expectations.
 
 For the 4 missing files, I checked medication doses, missing allergies, follow-up, and rejected treatments against the transcripts. Georgian checks use word stems where possible to allow different endings.
 
-The 11 local tests and TypeScript check passed. The table shows cached notes checked without API calls. The latest improved results are 58/58 for English and 64/65 for Georgian, totaling 122/123 (99%). All visits pass except `ka-03`, which passes 15/16: its plan contains an antibiotic mention outside the explicitly allowed statements. The original cache is missing `en-04`, which counts as failed checks. The original prompt only asks for a summary; the improved prompt gives explicit rules for sections, language, and content. The improved set includes retries during prompt development, so it isn't a single fresh run or a stability test across all 8 transcripts.
+The 11 local tests and TypeScript check passed. The table shows cached notes checked without API calls. The latest improved results are 58/58 for English and 64/65 for Georgian, totaling 122/123 (99%). All visits pass except `ka-03`, which passes 15/16: its plan contains an antibiotic mention outside the explicitly allowed statements. I generated the missing `en-04` baseline note with the unchanged original prompt, then rechecked all 8 saved baseline notes: 10/123 (8%). The original prompt only asks for a summary; the improved prompt gives explicit rules for sections, language, and content. The saved sets were collected at different times, and the improved set includes retries during prompt development, so this isn't a single fresh run or a stability test across all 8 transcripts.
 
 I clarified that missing medications or allergies are different from an explicit denial. The antibiotic check allows a few exact deferral statements and still rejects other antibiotic mentions, including contradictory prescriptions. I added an observed valid `ka-03` deferral wording, including its complete comma-separated plan statement. That earlier note passed 16/16, but the latest `ka-03` output still fails this phrase check. This remaining failure does not by itself establish that antibiotics were incorrectly prescribed.
 

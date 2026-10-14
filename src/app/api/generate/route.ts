@@ -5,7 +5,15 @@ import { generateNote } from "../../../lib/notes";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  let body: { transcriptId?: unknown; language?: unknown } | null;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Request body must be valid JSON." },
+      { status: 400 },
+    );
+  }
   const transcriptId = body?.transcriptId;
   const requestedLanguage = body?.language;
   if (typeof transcriptId !== "string" || !transcriptId.trim()) {
