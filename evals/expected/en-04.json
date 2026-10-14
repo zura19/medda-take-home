@@ -1,0 +1,34 @@
+{
+  "id": "en-04",
+  "sections": {
+    "CURRENT MEDICATIONS": {
+      "mustInclude": [
+        "ibuprofen"
+      ],
+      "mustNotInclude": [
+        "sumatriptan"
+      ]
+    },
+    "HISTORY OF PRESENT ILLNESS": {
+      "mustInclude": [
+        "sumatriptan"
+      ]
+    },
+    "ALLERGIES": {
+      "mustInclude": [
+        "No known allergies"
+      ]
+    },
+    "PLAN": {
+      "mustInclude": [
+        "propranolol",
+        "40 mg"
+      ]
+    },
+    "FOLLOW-UP": {
+      "mustInclude": [
+        "6 weeks"
+      ]
+    }
+  }
+}

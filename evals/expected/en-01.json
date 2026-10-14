@@ -1,0 +1,30 @@
+{
+  "id": "en-01",
+  "sections": {
+    "ALLERGIES": {
+      "mustInclude": [
+        "penicillin"
+      ]
+    },
+    "CURRENT MEDICATIONS": {
+      "mustInclude": [
+        "None"
+      ]
+    },
+    "VITALS AND EXAM": {
+      "mustInclude": [
+        "38.4"
+      ]
+    },
+    "PLAN": {
+      "mustInclude": [
+        "azithromycin",
+        "500 mg",
+        "250 mg"
+      ],
+      "mustNotInclude": [
+        "amoxicillin"
+      ]
+    }
+  }
+}
