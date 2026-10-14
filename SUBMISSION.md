@@ -61,18 +61,20 @@ Screenshots use local mock responses; the sample note is unrelated to the select
 
 | Prompt   | Checks passed | Pass rate |
 | -------- | ------------- | --------- |
-| Original | Pending       | Pending   |
-| Mine     | 102/105       | 97%       |
+| Original | 9/105         | 9%        |
+| Mine     | 105/105       | 100%      |
 
 I added section parsing, structure checks, and content checks. Empty notes fail the language check, and failed generation or missing cached notes count as failures. All 8 transcripts now have expectations.
 
 For the 4 missing files, I checked medication doses, missing allergies, follow-up, and rejected treatments against the transcripts. Georgian checks use word stems where possible to allow different endings.
 
-The 6 local tests and TypeScript check passed. I generated notes for all 8 transcripts with Gemini. Two requests initially returned 503 errors and succeeded on retry. Running `npm run eval -- --cached` then gave 102/105 (97%). The full original-prompt run is still pending.
+The 7 local tests and TypeScript check passed. Across all 8 transcripts, the original prompt passed 9/105 checks (9%) and the improved prompt passed 105/105 (100%). The original prompt only asks for a summary; the improved prompt gives explicit rules for sections, language, and content. The improved set includes retries during prompt development, so it isn't a single fresh run or a stability test.
 
-Three checks still fail: `ka-03` and `ka-04` don't use the exact missing-information phrase for current medications. The other failure is a limitation of the check: `ka-03` correctly says antibiotics are deferred until the X-ray result, but the check rejects any mention of antibiotics. These issues are still pending.
+I clarified that missing medications or allergies are different from an explicit denial. The antibiotic check allows a few exact deferral statements and still rejects other antibiotic mentions, including contradictory prescriptions.
 
-These are simple text checks. A note can contain the expected words but still be wrong or incomplete. Valid wording can also fail, and exclusions cannot tell a prescription from a negated mention. They do not replace a factual review.
+The runner accepts `--prompt original` or `--prompt improved` (the default). Notes are saved separately in `outputs/original/` and `outputs/improved/`. I preserved the existing passing notes in the improved folder. Use `npm run eval -- --prompt original` for the baseline, then add `--cached` to recheck either set without API calls. Both prompts use the same checks.
+
+These are simple text checks. A note can contain the expected words but still be wrong or incomplete. Valid wording can also fail: the allowed deferral phrases aren't a general understanding of negation. They do not replace a factual review.
 
 ## Middle-level extras (if applicable)
 

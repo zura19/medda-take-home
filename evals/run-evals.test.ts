@@ -51,3 +51,23 @@ test("all eight transcripts have expectations using valid headings", () => {
     assert.ok(checkExpectations({}, expected, transcript.language).length > 0);
   }
 });
+
+test("antibiotic deferral allows only complete approved statements", () => {
+  const expected: Expected = JSON.parse(fs.readFileSync("evals/expected/ka-03.json", "utf8"));
+  const planRules = expected.sections["გეგმა"];
+  const rules: Expected = { id: "test", sections: { "გეგმა": {
+    mustNotInclude: planRules.mustNotInclude,
+    allowedMentions: planRules.allowedMentions,
+  } } };
+  const passes = (text: string) => checkExpectations({ "გეგმა": text }, rules, "ka")[0].passed;
+  assert.ok(passes("გულმკერდის რენტგენოგრაფია."));
+  for (const statement of planRules.allowedMentions!["ანტიბიოტიკ"]) {
+    assert.ok(passes(`${statement}.`));
+  }
+  assert.equal(passes("დაიწყეთ ანტიბიოტიკი დღეს."), false);
+  assert.equal(passes("ანტიბიოტიკოთერაპია გადადებულია რენტგენის პასუხამდე. დაიწყეთ ანტიბიოტიკი დღეს."), false);
+  assert.equal(passes("ანტიბიოტიკი ჯერ არ ინიშნება, მაგრამ დაიწყეთ ანტიბიოტიკი დღეს."), false);
+  assert.equal(passes("ანტიბიოტიკოთერაპია გადადებულია რენტგენის პასუხამდე არასწორია."), false);
+  assert.equal(passes(""), false);
+  assert.equal(checkExpectations({}, rules, "ka")[0].passed, false);
+});

@@ -5,14 +5,18 @@
  *   npm run eval                 # generate notes with the current prompt, then check them
  *   npm run eval -- --cached     # re-check the notes already saved in outputs/ (no LLM calls)
  *   npm run eval -- --only en-01 # run a single transcript
+ *   npm run eval -- --prompt original # generate the baseline notes
  *
- * Generated notes are saved to outputs/<id>.txt so you can read them.
+ * Notes are saved to outputs/improved/<id>.txt or outputs/original/<id>.txt.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { loadEnvFile } from "node:process";
+import { parseArgs } from "node:util";
 import { loadTranscripts, type Language, type Transcript } from "../src/lib/transcripts";
 import { generateNote } from "../src/lib/notes";
+import { complete } from "../src/lib/llm";
+import { buildOriginalNotePrompt } from "../src/prompts/note-prompt";
 
 const OUTPUT_DIR = path.join(process.cwd(), "outputs");
 const EXPECTED_DIR = path.join(process.cwd(), "evals", "expected");
@@ -53,6 +57,8 @@ export type SectionExpectation = {
   mustInclude?: string[];
   /** None of these strings may appear in the section (case-insensitive). */
   mustNotInclude?: string[];
+  /** Exact allowed statements for a forbidden term; other mentions still fail. */
+  allowedMentions?: Record<string, string[]>;
   /** The section must be exactly the "not mentioned" phrase for the note's language. */
   notMentioned?: boolean;
 };
@@ -145,7 +151,12 @@ export function checkExpectations(
       results.push({ name: "must include", passed: Boolean(lower?.includes(phrase.toLowerCase())), detail: `${heading} should include "${phrase}"` });
     }
     for (const phrase of rules.mustNotInclude ?? []) {
-      results.push({ name: "must not include", passed: Boolean(content) && !lower?.includes(phrase.toLowerCase()), detail: `${heading} must exist and should not include "${phrase}"` });
+      const allowed = (rules.allowedMentions?.[phrase] ?? []).map((text) => text.toLowerCase());
+      const statements = (lower ?? "").split(/[.!?;\n]+/).map((text) => text.trim());
+      const forbidden = allowed.length === 0
+        ? Boolean(lower?.includes(phrase.toLowerCase()))
+        : statements.some((text) => text.includes(phrase.toLowerCase()) && !allowed.includes(text));
+      results.push({ name: "must not include", passed: Boolean(content) && !forbidden, detail: `${heading} must exist and should not include "${phrase}" outside an explicitly allowed statement` });
     }
     if (rules.notMentioned) {
       results.push({ name: "not mentioned", passed: content === NOT_MENTIONED[language], detail: `${heading} should be exactly "${NOT_MENTIONED[language]}"` });
@@ -164,13 +175,15 @@ function loadExpected(id: string): Expected | null {
   return JSON.parse(fs.readFileSync(file, "utf8")) as Expected;
 }
 
-async function getNote(t: Transcript, cached: boolean): Promise<string> {
-  const file = path.join(OUTPUT_DIR, `${t.id}.txt`);
+async function getNote(t: Transcript, cached: boolean, prompt: "original" | "improved"): Promise<string> {
+  const file = path.join(OUTPUT_DIR, prompt, `${t.id}.txt`);
   if (cached) {
     if (!fs.existsSync(file)) throw new Error(`No cached note at ${file}. Run without --cached first.`);
     return fs.readFileSync(file, "utf8");
   }
-  const note = await generateNote(t, t.language);
+  const note = prompt === "original"
+    ? await complete(buildOriginalNotePrompt(t))
+    : await generateNote(t, t.language);
   fs.writeFileSync(file, note, "utf8");
   return note;
 }
@@ -186,14 +199,20 @@ function runCheck(name: string, fn: () => CheckResult | CheckResult[]): CheckRes
 
 async function main() {
   if (fs.existsSync(".env.local")) loadEnvFile(".env.local");
-  const args = process.argv.slice(2);
-  const cached = args.includes("--cached");
-  const onlyIndex = args.indexOf("--only");
-  const only = onlyIndex >= 0 ? args[onlyIndex + 1] : null;
+  const { values } = parseArgs({ options: {
+    cached: { type: "boolean", default: false },
+    only: { type: "string" },
+    prompt: { type: "string", default: "improved" },
+  } });
+  const { cached, only, prompt } = values;
+  if (prompt !== "original" && prompt !== "improved") {
+    throw new Error("--prompt must be original or improved");
+  }
 
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+  if (!cached) fs.mkdirSync(path.join(OUTPUT_DIR, prompt), { recursive: true });
   const transcripts = loadTranscripts().filter((t) => !only || t.id === only);
-  if ((onlyIndex >= 0 && !only) || transcripts.length === 0) throw new Error("No matching transcript. Check --only <id>.");
+  if (only === "" || transcripts.length === 0) throw new Error("No matching transcript. Check --only <id>.");
+  console.log(`Prompt: ${prompt} | ${cached ? "Reading" : "Saving"} outputs/${prompt}/`);
 
   let total = 0;
   let passed = 0;
@@ -202,7 +221,7 @@ async function main() {
     let note = "";
     let noteFailed = false;
     try {
-      note = await getNote(t, cached);
+      note = await getNote(t, cached, prompt);
     } catch (err) {
       console.log(`\n✗ ${t.id}  could not get note: ${(err as Error).message}`);
       noteFailed = true;

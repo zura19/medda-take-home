@@ -2,7 +2,7 @@ CHIEF COMPLAINT
 Sore throat and painful swallowing.
 
 HISTORY OF PRESENT ILLNESS
-Patient reports a sore throat for 3 days with painful swallowing. Patient reports a fever of 38.6 °C last night and denies cough.
+Patient reports throat pain for 3 days. Reports fever of 38.6 °C last night. Denies cough.
 
 CURRENT MEDICATIONS
 None
@@ -11,16 +11,16 @@ ALLERGIES
 Penicillin (hives).
 
 VITALS AND EXAM
-Temperature 38.4 °C. Tonsils swollen with white patches. Tender lymph nodes in the neck. Rapid strep test positive.
+Temperature 38.4 °C. Tonsils swollen with white patches. Tender lymph nodes in neck. Rapid strep test positive.
 
 ASSESSMENT
 Strep throat.
 
 PLAN
-Prescribed azithromycin 500 mg on day 1, then 250 mg once daily for 4 days. Advised to take paracetamol for pain. Stay home until 24 hours after starting antibiotics and fever has resolved.
+Prescribed azithromycin: 500 mg on day 1, then 250 mg once daily for 4 days. Take paracetamol for pain. Stay home until 24 hours of antibiotic treatment and fever resolution.
 
 FOLLOW-UP
-Return if unable to swallow liquids or if experiencing trouble breathing. Return if not better in 1 week.
+Return immediately if unable to swallow liquids or if experiencing trouble breathing. Otherwise, return in 1 week if symptoms do not improve.
 
 PATIENT SUMMARY
-You have strep throat. Take the prescribed azithromycin as directed and use paracetamol for pain. Stay home from work until you have been on antibiotics for 24 hours and your fever is gone. Seek medical attention immediately if you have trouble breathing or cannot swallow liquids, or return in 1 week if you do not feel better.
+You have strep throat. Take the prescribed azithromycin and use paracetamol for pain. Stay home until you have been on the antibiotic for 24 hours and your fever is gone. Seek medical care immediately if you cannot swallow liquids or have trouble breathing, or return in 1 week if you are not feeling better.

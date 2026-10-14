@@ -1,0 +1,12 @@
+Here is a summary of the consultation:
+
+**Patient:** Mr. Lomidze
+**Reason for Visit:** Follow-up for diabetes management.
+
+**Key Updates:**
+*   **Medication:** The patient has been taking 500mg of metformin twice daily. While he experienced initial stomach upset, he has since adjusted to the medication.
+*   **Clinical Status:** The patient’s HbA1c has increased from 7.6 to 8.1, which he attributes to poor diet during the holidays. His current blood pressure is 138/86 and his weight is 94kg. A foot exam showed no signs of neuropathy.
+*   **Plan:**
+    *   **Medication Adjustment:** The metformin dosage will be increased to 1000mg twice daily.
+    *   **Lifestyle:** The patient has been referred to a dietitian and is instructed to monitor his fasting blood sugar levels a few times per week.
+    *   **Follow-up:** The doctor will re-evaluate the patient's blood pressure at the next visit in three months, at which time a repeat HbA1c test will also be performed.
