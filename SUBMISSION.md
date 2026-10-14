@@ -16,6 +16,7 @@
 | # | Symptom | Cause | Fix |
 |---|---|---|---|
 | 1 | Georgian transcripts were unreadable. | UTF-8 JSON files were read as Latin-1, corrupting Georgian characters. | Read transcript files using `utf8`; verified all 8 transcripts load and match their UTF-8 source files. |
+| 2 | Clicking Generate note failed to generate a note. | The frontend sent `transcriptId`, but the backend read `transcript_id`, so transcript lookup failed. | Changed the backend to read `transcriptId`, matching the frontend request. |
 
 ## Part 3: Note language selector
 

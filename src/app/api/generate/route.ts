@@ -6,8 +6,8 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const { transcript_id } = await req.json();
-    const transcript = getTranscript(transcript_id)!;
+    const { transcriptId } = await req.json();
+    const transcript = getTranscript(transcriptId)!;
     // TODO (Part 3): use the note language chosen in the UI instead of the transcript's language.
     const note = await generateNote(transcript, transcript.language);
     return NextResponse.json({ note });
