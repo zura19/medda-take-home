@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { parseNote } from "../../lib/notes";
+import { parseNote } from "../../helpers/note";
 
 export function NoteView({ note }: { note: string }) {
   const [copyResult, setCopyResult] = useState<{
@@ -9,10 +9,8 @@ export function NoteView({ note }: { note: string }) {
     message: string;
   } | null>(null);
   const [copying, setCopying] = useState(false);
-  const { language, sections, structured, missingPhrase, missingCount } = useMemo(
-    () => parseNote(note),
-    [note],
-  );
+  const { language, sections, structured, missingPhrase, missingCount } =
+    useMemo(() => parseNote(note), [note]);
 
   async function copyNote() {
     setCopying(true);
