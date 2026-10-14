@@ -7,9 +7,15 @@
 
 ## Part 1: Frontend bugs
 
-| #   | Symptom                                  | Cause                              | Fix                                                                                      |
-| --- | ---------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------- |
-| 1   | transcript data was fetching infinitely. | useEffect had no dependency array. | Added empty dependency array and now data is fetched only once, once the page is loaded. |
+| #   | Symptom                                                             | Cause                                                | Fix                                                                                                       |
+| --- | ------------------------------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1   | transcript data was fetching infinitely.                            | `useEffect` hook had no dependency array.            | Added empty dependency array and now data is fetched only once, once the page is loaded.                  |
+| 2   | Generation errors appeared as empty results.                        | The frontend did not check the HTTP response status. | Check `res.ok` and display the API error message, with a fallback message.                                |
+| 3   | The Generate note button could remain stuck after a failed request. | Loading was reset only on success.                   | Reset loading in `finally` for successful requests, API errors, and network or response-parsing failures. |
+| 4 | Transcript language badges were reversed. | The Georgian condition displayed EN and the English condition displayed KA. | Display KA for Georgian and EN for English. |
+| 5 | Loading transcripts had no progress or failure feedback. | The initial fetch did not check HTTP errors or handle rejected requests. | Added loading, error, and empty states; abort the fetch on cleanup and show reload instructions on failure. |
+| 6 | A generated note could appear under a different selected visit. | An earlier generation request could update state after the visit changed. | Track generation requests with a ref; invalidate them on selection changes and cleanup, and ignore stale results, errors, and loading updates. |
+| 7 | Transcript dialogue ran together. | Normal HTML whitespace collapsed the source line breaks. | Use `white-space: pre-wrap` on the transcript. |
 
 ## Part 2: Backend bugs
 

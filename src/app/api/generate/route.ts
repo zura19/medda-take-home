@@ -27,6 +27,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ note });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: (err as Error).message });
+    return NextResponse.json(
+      {
+        error: "An error occurred while generating the note.",
+      },
+      { status: 500 },
+    );
   }
 }
